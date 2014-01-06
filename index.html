@@ -16,7 +16,9 @@
 	</div>
 	<div class="trackField">
 		<input type="text" class="form-control" id="input" placeholder="Enter a Spotify Artist URL or URL">
+		<div class="spinner" style="display:none"></div>
 		<p id="alert"></p>
+
 	</div>
 </body>
 </html>
@@ -31,14 +33,14 @@ var background_positions = [ '0px 0px', '300px 0px', '600px 0px', '900px 0px', '
  	$('#input').change(function(e){
  		var url = $('#input').val();
  		if(url.indexOf('spotify:artist:') != -1 || url.indexOf('http://open.spotify.com/artist/') != -1){
-
+ 			$('.spinner').show();
  			$.ajax({
  				url: 'http://ws.spotify.com/lookup/1/.json?uri=' + url + '&extras=album',
  				type: 'GET',
  				dataType: 'json',
  			})
  			.done(function(data) {
- 				// console.log(data.artist.albums);
+ 				console.log(data.artist);
  				for (var i = 0; i < data.artist.albums.length, i < 16; i++) {
  					(function(albumData, index){
  						$.ajax({
@@ -56,7 +58,7 @@ var background_positions = [ '0px 0px', '300px 0px', '600px 0px', '900px 0px', '
  								$('body').css('background-image', 'url("' + cleanImageURL + '")')
  								$('body').css('background-position', background_positions[index]);
  								$('body').css('background-repeat', 'no-repeat');
-
+ 								$('.spinner').hide();
  								$('#alert').html(album.html);
  							}
  							else
