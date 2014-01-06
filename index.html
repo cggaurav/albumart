@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>SpotiArt</title>
+	<title>AlbumArt:Spotify</title>
 
 	<link rel=stylesheet href="./style.css">
 	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
@@ -15,13 +15,74 @@
 		<img src="./images/spotify.png"/>
 	</div>
 	<div class="trackField">
-		<input type="text" class="form-control" id="input" placeholder="Enter a Spotify URL">
+		<input type="text" class="form-control" id="input" placeholder="Enter a Spotify Artist URL or URL">
+		<p id="alert"></p>
 	</div>
 </body>
 </html>
 
+<!-- http://open.spotify.com/artist/5dFuu05x8SPBuymudrTBU8 -->
+<!-- spotify:artist:5dFuu05x8SPBuymudrTBU8 -->
 <script>
- $(document).ready(function(){
 
+var background_positions = [ '0px 0px', '300px 0px', '600px 0px', '900px 0px', '1200px 0px', '0px 300px', '300px 300px', '600px 300px', '900px 300px', '1200px 300px', '0px 600px', '300px 600px', '600px 600px', '900px 600px', '1200px 600px'];
+
+ $(document).ready(function(){
+ 	$('#input').change(function(e){
+ 		var url = $('#input').val();
+ 		if(url.indexOf('spotify:artist:') != -1 || url.indexOf('http://open.spotify.com/artist/') != -1){
+
+ 			$.ajax({
+ 				url: 'http://ws.spotify.com/lookup/1/.json?uri=' + url + '&extras=album',
+ 				type: 'GET',
+ 				dataType: 'json',
+ 			})
+ 			.done(function(data) {
+ 				// console.log(data.artist.albums);
+ 				for (var i = 0; i < data.artist.albums.length, i < 16; i++) {
+ 					(function(albumData, index){
+ 						$.ajax({
+ 							url: 'http://embed.spotify.com/oembed/?url=' + albumData.album.href + '&callback=json_callback',
+ 							type: 'GET',
+ 							dataType: 'jsonp',
+ 						})
+ 						.done(function(album) {
+ 							var cleanImageURL = album.thumbnail_url.replace('cover', '300');
+ 							console.log(cleanImageURL);
+ 							console.log(index);
+ 							if(index === 0){
+
+ 								$('body').css('background-image', 'url("' + cleanImageURL + '")')
+ 								$('body').css('background-position', background_positions[index]);
+ 								$('body').css('background-repeat', 'no-repeat')
+ 							}
+ 							else
+ 							{
+ 								var bg_images = $('body').css('background-image');
+ 								var bg_pos = $('body').css('background-position');
+ 								var bg_repeat = $('body').css('background-repeat');
+ 								console.log("EXISTING_CSS");
+ 								console.log(bg_images, bg_pos, bg_repeat);
+ 								$('body').css('background-image', bg_images + ', url("' + cleanImageURL + '")')
+ 								$('body').css('background-position', bg_pos + ', ' + background_positions[index]);
+ 								$('body').css('background-repeat', bg_repeat + ', no-repeat')	
+ 							}
+ 							
+ 						})
+ 						.fail(function(album) {
+ 						});
+ 					}(data.artist.albums[i], i));
+ 				};
+ 			})
+ 			.fail(function() {
+ 				console.log("error");
+ 			});
+	 	}
+	 	else
+	 	{
+	 		$('#alert').html("Malformed Album URL/URI");
+	 	}
+ 		
+ 	})
  })
 </script>
