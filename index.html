@@ -42,7 +42,7 @@ var background_positions = [ '0px 0px', '300px 0px', '600px 0px', '900px 0px', '
  				for (var i = 0; i < data.artist.albums.length, i < 16; i++) {
  					(function(albumData, index){
  						$.ajax({
- 							url: 'http://embed.spotify.com/oembed/?url=' + albumData.album.href + '&callback=json_callback',
+ 							url: 'http://embed.spotify.com/oembed/?url=' + albumData.album.href,
  							type: 'GET',
  							dataType: 'jsonp',
  						})
