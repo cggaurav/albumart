@@ -48,21 +48,23 @@ var background_positions = [ '0px 0px', '300px 0px', '600px 0px', '900px 0px', '
  						})
  						.done(function(album) {
  							var cleanImageURL = album.thumbnail_url.replace('cover', '300');
- 							console.log(cleanImageURL);
- 							console.log(index);
+ 							// console.log(cleanImageURL);
+ 							// console.log(album);
+ 							// console.log(index);
  							if(index === 0){
 
  								$('body').css('background-image', 'url("' + cleanImageURL + '")')
  								$('body').css('background-position', background_positions[index]);
- 								$('body').css('background-repeat', 'no-repeat')
+ 								$('body').css('background-repeat', 'no-repeat');
+
+ 								$('#alert').append(album.html);
  							}
  							else
  							{
  								var bg_images = $('body').css('background-image');
  								var bg_pos = $('body').css('background-position');
  								var bg_repeat = $('body').css('background-repeat');
- 								console.log("EXISTING_CSS");
- 								console.log(bg_images, bg_pos, bg_repeat);
+ 								// console.log(bg_images, bg_pos, bg_repeat);
  								$('body').css('background-image', bg_images + ', url("' + cleanImageURL + '")')
  								$('body').css('background-position', bg_pos + ', ' + background_positions[index]);
  								$('body').css('background-repeat', bg_repeat + ', no-repeat')	
@@ -75,7 +77,7 @@ var background_positions = [ '0px 0px', '300px 0px', '600px 0px', '900px 0px', '
  				};
  			})
  			.fail(function() {
- 				console.log("error");
+ 				// console.log("error");
  			});
 	 	}
 	 	else
