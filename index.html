@@ -28,6 +28,7 @@
 <script>
 
 var background_positions = [ '0px 0px', '300px 0px', '600px 0px', '900px 0px', '1200px 0px', '0px 300px', '300px 300px', '600px 300px', '900px 300px', '1200px 300px', '0px 600px', '300px 600px', '600px 600px', '900px 600px', '1200px 600px'];
+var background_repeats = ['no-repeat', 'no-repeat', 'no-repeat', 'no-repeat', 'repeat-x', 'no-repeat', 'no-repeat', 'no-repeat', 'no-repeat', 'repeat-x', 'no-repeat', 'no-repeat', 'no-repeat', 'no-repeat', 'repeat', 'no-repeat', 'no-repeat']
 
  $(document).ready(function(){
  	$('#input').change(function(e){
@@ -44,7 +45,7 @@ var background_positions = [ '0px 0px', '300px 0px', '600px 0px', '900px 0px', '
  				for (var i = 0; i < data.artist.albums.length, i < 16; i++) {
  					(function(albumData, index){
  						$.ajax({
- 							url: 'http://embed.spotify.com/oembed/?url=' + albumData.album.href,
+ 							url: 'http://embed.spotify.com/oembed/?url=' + albumData.album.href + '&callback=?',
  							type: 'GET',
  							dataType: 'jsonp',
  						})
@@ -57,7 +58,8 @@ var background_positions = [ '0px 0px', '300px 0px', '600px 0px', '900px 0px', '
 
  								$('body').css('background-image', 'url("' + cleanImageURL + '")')
  								$('body').css('background-position', background_positions[index]);
- 								$('body').css('background-repeat', 'no-repeat');
+ 								$('body').css('background-repeat', background_repeats[index]);
+ 								$('body').css('background-size', 'auto');
  								$('.spinner').hide();
  								$('#alert').html(album.html);
  							}
@@ -66,10 +68,11 @@ var background_positions = [ '0px 0px', '300px 0px', '600px 0px', '900px 0px', '
  								var bg_images = $('body').css('background-image');
  								var bg_pos = $('body').css('background-position');
  								var bg_repeat = $('body').css('background-repeat');
+ 								var bg_size = $('body').css('background-size');
  								// console.log(bg_images, bg_pos, bg_repeat);
  								$('body').css('background-image', bg_images + ', url("' + cleanImageURL + '")')
  								$('body').css('background-position', bg_pos + ', ' + background_positions[index]);
- 								$('body').css('background-repeat', bg_repeat + ', no-repeat')	
+ 								$('body').css('background-repeat', bg_repeat + ', ' + background_repeats[index]);
  							}
  							
  						})
