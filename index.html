@@ -33,6 +33,7 @@ var background_repeats = ['no-repeat', 'no-repeat', 'no-repeat', 'no-repeat', 'r
  $(document).ready(function(){
  	$('#input').change(function(e){
  		var url = $('#input').val();
+ 		var imageUrls = [];
  		if(url.indexOf('spotify:artist:') != -1 || url.indexOf('http://open.spotify.com/artist/') != -1){
  			$('.spinner').show();
  			$.ajax({
@@ -42,7 +43,7 @@ var background_repeats = ['no-repeat', 'no-repeat', 'no-repeat', 'no-repeat', 'r
  			})
  			.done(function(data) {
  				console.log(data.artist);
- 				for (var i = 0; i < data.artist.albums.length, i < 16; i++) {
+ 				for (var i = 0; i < data.artist.albums.length, i < 32; i++) {
  					(function(albumData, index){
  						$.ajax({
  							url: 'http://embed.spotify.com/oembed/?url=' + albumData.album.href + '&callback=?',
@@ -51,6 +52,7 @@ var background_repeats = ['no-repeat', 'no-repeat', 'no-repeat', 'no-repeat', 'r
  						})
  						.done(function(album) {
  							var cleanImageURL = album.thumbnail_url.replace('cover', '300');
+
  							// console.log(cleanImageURL);
  							// console.log(album);
  							// console.log(index);
@@ -62,18 +64,23 @@ var background_repeats = ['no-repeat', 'no-repeat', 'no-repeat', 'no-repeat', 'r
  								$('body').css('background-size', 'auto');
  								$('.spinner').hide();
  								$('#alert').html(album.html);
+ 								imageUrls.push(cleanImageURL);
  							}
  							else
  							{
- 								var bg_images = $('body').css('background-image');
- 								var bg_pos = $('body').css('background-position');
- 								var bg_repeat = $('body').css('background-repeat');
- 								var bg_size = $('body').css('background-size');
- 								// console.log(bg_images, bg_pos, bg_repeat);
- 								$('body').css('background-image', bg_images + ', url("' + cleanImageURL + '")')
- 								$('body').css('background-position', bg_pos + ', ' + background_positions[index]);
- 								$('body').css('background-repeat', bg_repeat + ', ' + background_repeats[index]);
+ 								if(imageUrls.indexOf(cleanImageURL) == -1){
+	 								var bg_images = $('body').css('background-image');
+	 								var bg_pos = $('body').css('background-position');
+	 								var bg_repeat = $('body').css('background-repeat');
+	 								var bg_size = $('body').css('background-size');
+	 								// console.log(bg_images, bg_pos, bg_repeat);
+	 								$('body').css('background-image', bg_images + ', url("' + cleanImageURL + '")')
+	 								$('body').css('background-position', bg_pos + ', ' + background_positions[index]);
+	 								$('body').css('background-repeat', bg_repeat + ', ' + background_repeats[index]);
+	 								imageUrls.push(cleanImageURL);
+	 							}
  							}
+
  							
  						})
  						.fail(function(album) {
@@ -87,7 +94,7 @@ var background_repeats = ['no-repeat', 'no-repeat', 'no-repeat', 'no-repeat', 'r
 	 	}
 	 	else
 	 	{
-	 		$('#alert').html("Malformed Album URL/URI");
+	 		$('#alert').html("Malformed Artist URL/URI");
 	 	}
  		
  	})
