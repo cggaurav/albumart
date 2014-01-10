@@ -1,24 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>AlbumArt:Spotify</title>
-
+	<title>AlbumArt</title>
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
 	<link rel=stylesheet href="./style.css">
-	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
-
-
 	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-	<script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.9.3/typeahead.min.js"></script>
+
 </head>
 <body>
 	<div class="header">
 		<img src="./images/spotify.png"/>
 	</div>
 	<div class="trackField">
-		<input type="text" class="form-control" id="input" placeholder="Enter a Spotify Artist URL or URL">
+		<input type="text" class="form-control" id="input" placeholder="Search for an Artist">
 		<div class="spinner" style="display:none"></div>
-		<p id="alert"></p>
-
 	</div>
 </body>
 </html>
@@ -31,72 +27,80 @@ var background_positions = [ '0px 0px', '300px 0px', '600px 0px', '900px 0px', '
 var background_repeats = ['no-repeat', 'no-repeat', 'no-repeat', 'no-repeat', 'repeat-x', 'no-repeat', 'no-repeat', 'no-repeat', 'no-repeat', 'repeat-x', 'no-repeat', 'no-repeat', 'no-repeat', 'no-repeat', 'repeat', 'no-repeat', 'no-repeat']
 
  $(document).ready(function(){
- 	$('#input').change(function(e){
- 		var url = $('#input').val();
- 		var imageUrls = [];
- 		if(url.indexOf('spotify:artist:') != -1 || url.indexOf('http://open.spotify.com/artist/') != -1){
- 			$('.spinner').show();
- 			$.ajax({
- 				url: 'http://ws.spotify.com/lookup/1/.json?uri=' + url + '&extras=album',
- 				type: 'GET',
- 				dataType: 'json',
- 			})
- 			.done(function(data) {
- 				console.log(data.artist);
- 				for (var i = 0; i < data.artist.albums.length, i < 32; i++) {
- 					(function(albumData, index){
- 						$.ajax({
- 							url: 'http://embed.spotify.com/oembed/?url=' + albumData.album.href + '&callback=?',
- 							type: 'GET',
- 							dataType: 'jsonp',
- 						})
- 						.done(function(album) {
- 							var cleanImageURL = album.thumbnail_url.replace('cover', '300');
+ 	$('#input').typeahead([
+ 	  {
+ 	    name: 'artists',
+ 	    valueKey : 'name',
+ 	    limit: 10,
+ 	    remote: {
+ 	    	url : 'http://ws.spotify.com/search/1/artist.json?q=%QUERY',
+ 	    	filter: function(data){
+ 	    		return data.artists;
+ 	    	}
+ 	    }
+ 	  }
+ 	]);
 
- 							// console.log(cleanImageURL);
- 							// console.log(album);
- 							// console.log(index);
- 							if(index === 0){
+ 	$('#input').on('typeahead:selected', function (typeahead, chosenArtist) {
+			var url = chosenArtist.href;
+			var imageUrls = [];
+			$('.spinner').show();
+			$.ajax({
+				url: 'http://ws.spotify.com/lookup/1/.json?uri=' + url + '&extras=album',
+				type: 'GET',
+				dataType: 'json',
+			})
+			.done(function(data) {
+				// console.log(data.artist);
+				for (var i = 0; i < data.artist.albums.length, i < 32; i++) {
+					(function(albumData, index){
+						$.ajax({
+							url: 'http://embed.spotify.com/oembed/?url=' + albumData.album.href + '&callback=?',
+							type: 'GET',
+							dataType: 'jsonp',
+						})
+						.done(function(album) {
+							var cleanImageURL = album.thumbnail_url.replace('cover', '300');
 
- 								$('body').css('background-image', 'url("' + cleanImageURL + '")')
- 								$('body').css('background-position', background_positions[index]);
- 								$('body').css('background-repeat', background_repeats[index]);
- 								$('body').css('background-size', 'auto');
- 								$('.spinner').hide();
- 								$('#alert').html(album.html);
+							// console.log(cleanImageURL);
+							// console.log(album);
+							// console.log(index);
+							if(index === 0){
+
+								$('body').css('background-image', 'url("' + cleanImageURL + '")')
+								$('body').css('background-position', background_positions[index]);
+								$('body').css('background-repeat', background_repeats[index]);
+								$('body').css('background-size', 'auto');
+								$('.spinner').hide();
+								$('#alert').html(album.html);
+								imageUrls.push(cleanImageURL);
+							}
+							else
+							{
+								if(imageUrls.indexOf(cleanImageURL) == -1){
+ 								var bg_images = $('body').css('background-image');
+ 								var bg_pos = $('body').css('background-position');
+ 								var bg_repeat = $('body').css('background-repeat');
+ 								var bg_size = $('body').css('background-size');
+ 								// console.log(bg_images, bg_pos, bg_repeat);
+ 								$('body').css('background-image', bg_images + ', url("' + cleanImageURL + '")')
+ 								$('body').css('background-position', bg_pos + ', ' + background_positions[index]);
+ 								$('body').css('background-repeat', bg_repeat + ', ' + background_repeats[index]);
  								imageUrls.push(cleanImageURL);
  							}
- 							else
- 							{
- 								if(imageUrls.indexOf(cleanImageURL) == -1){
-	 								var bg_images = $('body').css('background-image');
-	 								var bg_pos = $('body').css('background-position');
-	 								var bg_repeat = $('body').css('background-repeat');
-	 								var bg_size = $('body').css('background-size');
-	 								// console.log(bg_images, bg_pos, bg_repeat);
-	 								$('body').css('background-image', bg_images + ', url("' + cleanImageURL + '")')
-	 								$('body').css('background-position', bg_pos + ', ' + background_positions[index]);
-	 								$('body').css('background-repeat', bg_repeat + ', ' + background_repeats[index]);
-	 								imageUrls.push(cleanImageURL);
-	 							}
- 							}
+							}
 
- 							
- 						})
- 						.fail(function(album) {
- 						});
- 					}(data.artist.albums[i], i));
- 				};
- 			})
- 			.fail(function() {
- 				// console.log("error");
- 			});
-	 	}
-	 	else
-	 	{
-	 		$('#alert').html("Malformed Artist URL/URI");
-	 	}
- 		
- 	})
+							
+						})
+						.fail(function(album) {
+						});
+					}(data.artist.albums[i], i));
+				};
+			})
+			.fail(function() {
+				// console.log("error");
+			});
+ 	    
+ 	});
  })
 </script>
